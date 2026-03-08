@@ -47,4 +47,4 @@ temp/
 .node_repl_history
 
 # Optional package lock ignoring (usually keep it)
-# package-lock.json
+# package-lock.jsong
