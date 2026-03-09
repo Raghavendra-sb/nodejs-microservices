@@ -1,0 +1,50 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage reports
+coverage/
+
+# Build output
+dist/
+build/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Docker files (optional)
+docker-compose.override.yml
+
+# MongoDB local data (if used)
+data/
+mongodb-data/
+
+# Temporary files
+tmp/
+temp/
+
+# Node REPL history
+.node_repl_history
+
+# Optional package lock ignoring (usually keep it)
+# package-lock.jsong
