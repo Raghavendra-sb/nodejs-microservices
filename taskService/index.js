@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import amqp from 'amqplib';
 
 const app = express();
 
@@ -30,31 +31,42 @@ app.get('/',(req,res)=>{
     res.send("hello");
 })
 
-app.post('/addTask',async (req,res)=>{
+app.post('/addTask', async (req,res)=>{
     try{
+
         const {title,description,userId} = req.body;
 
         const task = await Task.create({
-            title : title,
-            description : description,
-            userId : userId,
-        })
+            title,
+            description,
+            userId
+        });
 
+        const message = {
+            taskId: task._id,
+            userId,
+            title
+        };
 
-       
+        if(channel){
+            channel.sendToQueue(
+                "task_created",
+                Buffer.from(JSON.stringify(message))
+            );
+        }
 
         res.status(200).json({
-            success: true,
+            success:true,
             task
-        })
-    }
-    catch(err){
-        console.log(err)
+        });
+
+    }catch(err){
+        console.log(err);
         res.status(500).json({
             success:false
-        })
+        });
     }
-})
+});
 
 
 app.get('/getTasks',async(req,res) =>{
