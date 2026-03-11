@@ -1,40 +1,45 @@
-import express from "express";
 import amqp from "amqplib";
 
-const app = express();
-
+let connection;
 let channel;
 
-async function connectRabbitMQ() {
-  try {
-    const connection = await amqp.connect("amqp://rabbitmq");
+async function connectRabbitMQ(retries = 10) {
 
-    channel = await connection.createChannel();
+    while(retries) {
 
-    await channel.assertQueue("task_created", { durable: true });
+        try {
 
-    console.log("Notification Service connected to RabbitMQ");
+            connection = await amqp.connect("amqp://rabbitmq");
 
-    channel.consume("task_created", (msg) => {
-      const data = JSON.parse(msg.content.toString());
+            channel = await connection.createChannel();
 
-      console.log("Notification received for task:", data);
+            await channel.assertQueue("task_created", { durable: true });
 
-      // Example notification logic
-      console.log(
-        `Send notification → User ${data.userId} created task "${data.title}"`
-      );
+            console.log("Notification Service connected to RabbitMQ");
 
-      channel.ack(msg);
-    });
+            channel.consume("task_created", (msg) => {
 
-  } catch (err) {
-    console.log("RabbitMQ error:", err);
-  }
+                const taskData = JSON.parse(msg.content.toString());
+
+                console.log("📩 New Task Notification:", taskData.title);
+
+                console.log(taskData);
+
+                channel.ack(msg);
+
+            });
+
+            return;
+
+        } catch(err) {
+
+            console.log("RabbitMQ not ready, retrying...", retries);
+
+            retries--;
+
+            await new Promise(res => setTimeout(res, 5000));
+        }
+    }
 }
 
-app.listen(3000, async () => {
-  console.log("Notification Service running");
-
-  await connectRabbitMQ();
-});
+connectRabbitMQ();

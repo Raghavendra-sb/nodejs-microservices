@@ -26,11 +26,16 @@ services:
   task-service:
     build: ./taskService
     ports:
-      - "3002:3002"
+      - "8080:8080"
     depends_on:
       - mongodb
       - rabbitmq
 
+  notification-service:
+    build: ./notificationService
+    depends_on:
+      - rabbitmq
+      - mongodb
 
 volumes:
   mongo_data:

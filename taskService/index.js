@@ -38,7 +38,7 @@ async function connectRabbitMQRetries(retries = 5, delay = 5000) {
         await channel.assertQueue("task_created", { durable: true });
 
         console.log("Task Service connected to RabbitMQ");
-        break;
+        return;
 
         }
         catch(err)
