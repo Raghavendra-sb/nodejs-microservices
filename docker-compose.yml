@@ -15,7 +15,6 @@ services:
       - "5672:5672"
       - "15672:15672"
 
-
   user-service:
     build: ./userService
     ports:
@@ -29,6 +28,13 @@ services:
       - "8080:8080"
     depends_on:
       - mongodb
+      - rabbitmq
+
+  notification-service:
+    build: ./notificationService
+    ports:
+      - "4000:3000"
+    depends_on:
       - rabbitmq
 
 volumes:

@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import amqp from 'amqplib';
 
+import { getChannel } from './notification.js';
+
 const app = express();
 
 app.use(express.json());
@@ -48,12 +50,16 @@ app.post('/addTask', async (req,res)=>{
             title
         };
 
-        if(channel){
-            channel.sendToQueue(
-                "task_created",
-                Buffer.from(JSON.stringify(message))
-            );
-        }
+       const channel = getChannel();
+
+if(!channel){
+    console.log("RabbitMQ channel not available");
+}else{
+    channel.sendToQueue(
+        "task_created",
+        Buffer.from(JSON.stringify(message))
+    );
+}
 
         res.status(200).json({
             success:true,
