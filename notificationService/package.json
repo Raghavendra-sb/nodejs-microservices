@@ -1,8 +1,20 @@
 {
+  "name": "notificationservice",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
   "dependencies": {
-    "amqplib": "^0.10.9",
     "express": "^5.2.1",
     "mongoose": "^9.2.4",
+     "amqplib": "^0.10.9"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.14"
   }
 }

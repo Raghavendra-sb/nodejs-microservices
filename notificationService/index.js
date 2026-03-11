@@ -1,45 +1,40 @@
-import express from 'express';
-import amqp from 'amqplib';
+import express from "express";
+import amqp from "amqplib";
 
 const app = express();
 
-let connection;
 let channel;
 
-export async function ConnectRabbitMQwithRetry(retries = 5) {
+async function connectRabbitMQ() {
+  try {
+    const connection = await amqp.connect("amqp://rabbitmq");
 
-    while(retries){
-        try {
+    channel = await connection.createChannel();
 
-            connection = await amqp.connect("amqp://rabbitmq");
+    await channel.assertQueue("task_created", { durable: true });
 
-            channel = await connection.createChannel();
+    console.log("Notification Service connected to RabbitMQ");
 
-            await channel.assertQueue("task_created");
+    channel.consume("task_created", (msg) => {
+      const data = JSON.parse(msg.content.toString());
 
-            console.log("Connected to RabbitMQ");
+      console.log("Notification received for task:", data);
 
-            return channel;
+      // Example notification logic
+      console.log(
+        `Send notification → User ${data.userId} created task "${data.title}"`
+      );
 
-        } catch (error) {
+      channel.ack(msg);
+    });
 
-            console.log("Failed to connect to RabbitMQ", error);
-
-            retries--;
-
-            console.log(`Retrying... ${retries} attempts left`);
-
-            await new Promise((res) => setTimeout(res, 5000));
-        }
-    }
+  } catch (err) {
+    console.log("RabbitMQ error:", err);
+  }
 }
 
-export function getChannel(){
-    return channel;
-}
+app.listen(3000, async () => {
+  console.log("Notification Service running");
 
-app.listen(3000, async ()=>{
-    console.log("Notification service running");
-
-    await ConnectRabbitMQwithRetry();
+  await connectRabbitMQ();
 });
