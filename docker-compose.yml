@@ -17,14 +17,14 @@ services:
       - "15672:15672"
 
   user-service:
-    build: ./userService
+    build: ./user-service
     ports:
       - "3000:3000"
     depends_on:
       - mongodb
 
   task-service:
-    build: ./taskService
+    build: ./task-service
     ports:
       - "8080:8080"
     depends_on:
@@ -32,10 +32,20 @@ services:
       - rabbitmq
 
   notification-service:
-    build: ./notificationService
+    build: ./notification-service
     depends_on:
       - rabbitmq
       - mongodb
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "5000:5000"
+    depends_on:
+      - user-service
+      - task-service
+
+   
 
 volumes:
   mongo_data:

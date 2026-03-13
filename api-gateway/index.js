@@ -4,7 +4,7 @@ import {createProxyMiddleware} from 'http-proxy-middleware'
 const app = express();
 
 app.use("/user",createProxyMiddleware({
-    target : "http://userservice:3000",
+    target : "http://user-service:3000",
     changeOrigin : true
 }))
 
