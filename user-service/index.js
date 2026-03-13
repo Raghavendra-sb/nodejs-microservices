@@ -12,7 +12,6 @@ mongoose.connect("mongodb://mongodb:27017/users")
 .catch(err=>console.log("DB connection failed",err));
 
 const userSchema = new mongoose.Schema({
- 
     name:String,
     email:String,
     password:String
@@ -29,9 +28,7 @@ app.post('/register', async (req,res)=>{
 
         const {name,email,password} = req.body;
 
-        const hashedPassword = bycrypt.hash(password);
-
-
+        const hashedPassword = await bycrypt.hash(password, 10);
 
         const user = await User.create({
 
@@ -102,12 +99,12 @@ app.post('/login', async (req,res) => {
     }
 
     const token = jwt.sign(
-        { userId: "12345" },
-        "8f3c2b9d4e1a7c6f0d2b5a9e3f4c1d7e9b2a6c8d0f1e3b5a7c9d2e4f6a8b1c3",
-        { expiresIn: "1h" }
-    );
+  { userId: user._id },
+  "8f3c2b9d4e1a7c6f0d2b5a9e3f4c1d7e9b2a6c8d0f1e3b5a7c9d2e4f6a8b1c3",
+  { expiresIn: "1h" }
+);
 
-    res.josn(
+    res.json(
         {
             success : true,
             token
