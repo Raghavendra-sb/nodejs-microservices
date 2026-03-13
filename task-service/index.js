@@ -56,18 +56,29 @@ async function connectRabbitMQRetries(retries = 5, delay = 5000) {
 
 app.post("/addTask", async (req, res) => {
   try {
-    const { title, description, userId } = req.body;
+
+    const { title, description } = req.body;
+
+    // get userId from gateway header
+    const userId = req.headers["x-user-id"];
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized request"
+      });
+    }
 
     const task = await Task.create({
       title,
       description,
-      userId,
+      userId
     });
 
     const message = {
       taskId: task._id,
       title,
-      userId,
+      userId
     };
 
     if (channel) {
@@ -82,8 +93,9 @@ app.post("/addTask", async (req, res) => {
 
     res.json({
       success: true,
-      task,
+      task
     });
+
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false });
@@ -98,6 +110,7 @@ app.get("/getTasks", async (req, res) => {
     tasks,
   });
 });
+
 app.get('/',(req,res)=>{
     res.send("Hello from task service")
 })

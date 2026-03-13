@@ -1,5 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import bycrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 const app = express();
 
@@ -12,7 +14,8 @@ mongoose.connect("mongodb://mongodb:27017/users")
 const userSchema = new mongoose.Schema({
  
     name:String,
-    email:String
+    email:String,
+    password:String
 })
 
 const User = mongoose.model("User",userSchema);
@@ -21,15 +24,21 @@ app.get('/',(req,res)=>{
     res.send("Hello")
 })
 
-app.post('/addUser', async (req,res)=>{
+app.post('/register', async (req,res)=>{
     try{
 
-        const {name,email} = req.body;
+        const {name,email,password} = req.body;
+
+        const hashedPassword = bycrypt.hash(password);
+
+
 
         const user = await User.create({
 
             name : name,
-            email: email
+            email: email,
+            password: hashedPassword
+
         })
 
         await user.save();
@@ -68,6 +77,43 @@ app.delete('/deleteUser/:name', async (req,res) =>{
     });
 
 });
+
+app.post('/login', async (req,res) => {
+
+
+    const {email,password} = req.body;
+
+    const user = await User.findOne({email});
+
+    if(!user)
+    {
+        res.status(404).json({
+            message : "User doesnt exist"
+        })
+    }
+
+    const isMatch = await bycrypt.compare(password,user.password);
+
+    if(!isMatch)
+    {
+        res.status(401).json({
+            message : "Incorrect password"
+        })
+    }
+
+    const token = jwt.sign(
+        { userId: "12345" },
+        "8f3c2b9d4e1a7c6f0d2b5a9e3f4c1d7e9b2a6c8d0f1e3b5a7c9d2e4f6a8b1c3",
+        { expiresIn: "1h" }
+    );
+
+    res.josn(
+        {
+            success : true,
+            token
+        }
+    )
+})
 
 app.listen(3000,()=>{
     console.log("server is up and running")
