@@ -1,0 +1,77 @@
+API Gateway – Short Notes
+1. Definition
+
+An API Gateway is a single entry point for all client requests in a microservices architecture.
+
+Clients send requests to the API Gateway, and it forwards them to the appropriate microservice.
+
+2. How it works in your project
+
+Client sends request:
+
+http://localhost:5000/user/addUser
+
+API Gateway receives the request and forwards it to:
+
+http://user-service:3000/addUser
+
+Similarly:
+
+http://localhost:5000/tasks/addTask
+
+is forwarded to:
+
+http://task-service:8080/addTask
+3. API Gateway code concept
+app.use("/user", createProxyMiddleware({
+  target: "http://user-service:3000"
+}))
+
+Meaning:
+
+/user → user-service
+
+and
+
+app.use("/tasks", createProxyMiddleware({
+  target: "http://task-service:8080"
+}))
+
+Meaning:
+
+/tasks → task-service
+4. Why user-service works instead of localhost
+
+Docker creates an internal network DNS.
+
+So service names act like hostnames:
+
+user-service → user container
+task-service → task container
+mongodb → mongodb container
+rabbitmq → rabbitmq container
+5. Request flow
+Client
+   |
+   v
+API Gateway (localhost:5000)
+   |
+   |----> user-service (3000)
+   |
+   |----> task-service (8080)
+6. Benefits of API Gateway
+
+• Single entry point for clients
+• Hides internal microservices
+• Centralized routing
+• Can handle authentication and logging
+• Easier frontend integration
+
+7. Example flow in your project
+Client → API Gateway → Task Service → MongoDB
+                             |
+                             v
+                          RabbitMQ
+                             |
+                             v
+                     Notification Service
