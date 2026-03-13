@@ -98,7 +98,9 @@ app.get("/getTasks", async (req, res) => {
     tasks,
   });
 });
-
+app.get('/',(req,res)=>{
+    res.send("Hello from task service")
+})
 /* ---------------- Server ---------------- */
 
 app.listen(8080, async () => {
