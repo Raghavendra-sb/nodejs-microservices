@@ -4,7 +4,7 @@ import bycrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 const app = express();
-
+app.set('trust proxy', 1); // Add here too
 app.use(express.json());
 
 mongoose.connect("mongodb://mongodb:27017/users")
